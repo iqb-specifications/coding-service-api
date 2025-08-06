@@ -1,0 +1,200 @@
+openapi: 3.1.0
+info:
+  title: API für IQB-CodingService
+  version: '0.1.0'
+  description: |
+    Der Coding-Service ist ein Teil der [TBA-Architektur](https://iqb-berlin.github.io/tba-info) 
+    für die Kodierung und die Datenanalyse von Lernstandserhebungen. Es werden Konfigurationsdaten 
+    hochgeladen und dann pro Request die Kodierung und Analyse EINER Testperson geliefert.
+  contact:
+    name: Tech Support
+    email: iqb-tbadev-support@hu-berlin.de
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://www.iqb-codingservice.de/
+    description: Beispiel
+
+tags:
+  - name: admin
+    description: Verwaltung von Arbeitsbereichen
+  - name: students
+    description: Ergebnisse auf Schülerebene
+  - name: schools
+    description: Ergebnisse auf Schulebene
+
+paths:
+  /ws-admin:
+    put:
+      tags:
+        - admin
+      summary: Anlegen Arbeitsbereich
+      description: Ein neuer Arbeitsbereich wird angelegt
+      operationId: putWorkspace
+      requestBody:
+        description: Name des neuen Arbeitsbereiches
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: integer
+              format: int64
+              minimum: 1
+      responses:
+        '200':
+          description: Arbeitsbereich angelegt
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /ws-admin/{workspaceId}:
+    patch:
+      tags:
+        - admin
+      summary: Umbenennen Arbeitsbereich
+      description: Ein Arbeitsbereich wird umbenannt
+      operationId: patchWorkspace
+      parameters:
+         - $ref: '#/components/parameters/WorkspaceId'
+      requestBody:
+        description: Neuer Name des Arbeitsbereiches
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+
+      responses:
+        '200':
+          description: Arbeitsbereich angelegt
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    get:
+      tags:
+        - admin
+      summary: Allgemeine Daten des Arbeitsbereiches werden abgefragt.
+      description: Abruf von Name,
+      operationId: getWorkspaceInfo
+      parameters:
+        - $ref: '#/components/parameters/WorkspaceId'
+      responses:
+        '200':
+          description: Workspace-Info erfolgreich abgerufen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceInfo'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  parameters:
+    WorkspaceId:
+      name: workspaceId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+      description: Eindeutige Kennung für den Arbeitsbereich
+
+  schemas:
+    # Response Wrappers
+    WorkspaceInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        numberOfUnits:
+          type: integer
+          format: int64
+        numberOfBooklets:
+          type: integer
+          format: int64
+      required: [name, numberOfUnits, numberOfBooklets]
+
+    # Error Models
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Fehlercode für programmatische Behandlung
+        message:
+          type: string
+          description: Menschenlesbare Fehlermeldung
+        details:
+          type: object
+          description: Zusätzliche Fehlerdetails
+      required: [code, message]
+
+  responses:
+    BadRequest:
+      description: Ungültige Anfrageparameter
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "INVALID_PARAMETER"
+            message: "Der Parameter 'Name des neuen Arbeitsbereiches' ist erforderlich"
+
+    Forbidden:
+      description: Zugriff verweigert - unzureichende Berechtigungen
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "ACCESS_DENIED"
+            message: "Sie haben keine Berechtigung für den Zugriff auf diese Ressource"
+
+    NotFound:
+      description: Ressource nicht gefunden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "RESOURCE_NOT_FOUND"
+            message: "Kurs mit ID 12345 nicht gefunden"
+
+    InternalError:
+      description: Interner Serverfehler
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "INTERNAL_ERROR"
+            message: "Ein unerwarteter Fehler ist aufgetreten"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
