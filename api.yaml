@@ -20,13 +20,22 @@ servers:
 tags:
   - name: admin
     description: Verwaltung von Arbeitsbereichen
-  - name: students
-    description: Ergebnisse auf Schülerebene
-  - name: schools
-    description: Ergebnisse auf Schulebene
+  - name: upload
+    description: Hochladen von Survey Content
+  - name: evaluate
+    description: Testergebnisse kodieren und analysieren
 
 paths:
   /ws-admin:
+    get:
+      description: New endpoint
+      responses:
+        200:
+          description: New response
+          content:
+            application/json:
+              schema:
+                :
     put:
       tags:
         - admin
@@ -39,16 +48,16 @@ paths:
         content:
           text/plain:
             schema:
-              type: integer
-              format: int64
-              minimum: 1
+              type: string
+            example: "VERA2027-Pilotierung"
       responses:
         '200':
           description: Arbeitsbereich angelegt
           content:
             text/plain:
               schema:
-                type: string
+                type: number
+              example: 365
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
@@ -73,6 +82,7 @@ paths:
           text/plain:
             schema:
               type: string
+            example: "VERA2027-Haupterhebung"
 
       responses:
         '200':
@@ -107,6 +117,75 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /ws-admin/{workspaceId}/upload:
+    post:
+      tags:
+        - upload
+      summary: Hochladen von Survey Content
+      description: |
+        In einem Arbeitsbereich sind alle Informationen gespeichert, die für die Datenanalyse und Kodierung erforderlich 
+        sind. Diese Datenstrukturen sind als Dateien verfügbar.
+      operationId: uploadSurveyContent
+      parameters:
+        - $ref: '#/components/parameters/WorkspaceId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                contentAsFile:
+                  type: string
+                  description: file
+                  required: true
+
+      responses:
+        '200':
+          description: Daten hochgeladen
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /evaluate/{workspaceId}:
+    post:
+      tags:
+        - evaluate
+      summary: Kodieren und analysieren der Daten einer Testperson
+      description: |
+        Die Definitionen, die in einem Arbeitsbereich hinterlegt sind, werden auf die Antworten der Testperson 
+        angewendet. Es werden Antworten kodiert und anschließend Fähigkeitswerte ermittelt. Die Daten der Person
+        werden nicht gespeichert, d. h. bei einem späteren Aufruf müssen wieder alle Antworten übermittelt werden.
+      operationId: evaluateResponses
+      parameters:
+        - $ref: '#/components/parameters/WorkspaceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Workspace-Info erfolgreich abgerufen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationOutput'
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
 components:
   parameters:
     WorkspaceId:
@@ -117,6 +196,7 @@ components:
         type: integer
         format: int64
         minimum: 1
+        example: 354
       description: Eindeutige Kennung für den Arbeitsbereich
 
   schemas:
@@ -133,6 +213,9 @@ components:
           type: integer
           format: int64
       required: [name, numberOfUnits, numberOfBooklets]
+
+    EvaluationOutput:
+      type: object
 
     # Error Models
     Error:
