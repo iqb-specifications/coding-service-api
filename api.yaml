@@ -27,15 +27,6 @@ tags:
 
 paths:
   /ws-admin:
-    get:
-      description: New endpoint
-      responses:
-        200:
-          description: New response
-          content:
-            application/json:
-              schema:
-                :
     put:
       tags:
         - admin
@@ -239,9 +230,11 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-          example:
-            code: "INVALID_PARAMETER"
-            message: "Der Parameter 'Name des neuen Arbeitsbereiches' ist erforderlich"
+          example: |
+            {
+            "code": "INVALID_PARAMETER",
+            "message": "Der Parameter 'Name des neuen Arbeitsbereiches' ist erforderlich"
+            }
 
     Forbidden:
       description: Zugriff verweigert - unzureichende Berechtigungen
@@ -249,9 +242,11 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-          example:
-            code: "ACCESS_DENIED"
-            message: "Sie haben keine Berechtigung für den Zugriff auf diese Ressource"
+          example: |
+            {
+            "code": "ACCESS_DENIED",
+            "message": "Sie haben keine Berechtigung für den Zugriff auf diese Ressource"
+            }
 
     NotFound:
       description: Ressource nicht gefunden
@@ -259,9 +254,11 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-          example:
-            code: "RESOURCE_NOT_FOUND"
-            message: "Kurs mit ID 12345 nicht gefunden"
+          example: |
+            {
+            "code": "RESOURCE_NOT_FOUND",
+            "message": "Unit mit ID 12345 nicht gefunden"
+            }
 
     InternalError:
       description: Interner Serverfehler
@@ -269,9 +266,11 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-          example:
-            code: "INTERNAL_ERROR"
-            message: "Ein unerwarteter Fehler ist aufgetreten"
+          example: |
+            {
+            "code": "INTERNAL_ERROR",
+            "message": "Ein unerwarteter Fehler ist aufgetreten"
+            }
 
   securitySchemes:
     BearerAuth:
