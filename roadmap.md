@@ -23,3 +23,4 @@
 * Response: Fähigkeiten
   - für alle Skalen im Workspace, auch wenn keine Items dazu der Testperson vorlagen
   - nominal und ordinal, so wie möglich
+* Response: Kodierte Antworten
