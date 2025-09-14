@@ -239,26 +239,52 @@ components:
       description: |
         Es werden alle Antworten einer Person übergeben. Das Format 
         entspricht dem IQB-Standard für Antwortdaten des IQB-Testcenters.
-      type: array
-      items:
-        $ref: 'https://w3id.org/iqb/spec/response/1.5'
-      minItems: 1
+        Außerdem können zusätzliche Itemwerte aus anderen Quellen übergeben werden.
+      type: object
+      properties:
+        responses:
+          type: array
+          items:
+            $ref: 'https://w3id.org/iqb/spec/response/1.5'
+          minItems: 1
+        addOnItems:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              value:
+                type: integer
+            required:
+              - id
+              - value
+            additionalProperties: false
+      additionalProperties: false
       example:
-        - id: "M23441_2"
-          status: "VALUE_CHANGED"
-          value: 4
-        - id: "M23441_3"
-          status: "VALUE_CHANGED"
-          value: "wunderbAre Sache!"
-        - id: "M23446aac"
-          status: "CODING_COMPLETE"
-          value:
-            - 4
-            - 5
-            - 7
-            - 1
-          code: 3
-          score: 1
+        responses:
+          - id: "M23441_2"
+            status: "VALUE_CHANGED"
+            value: 4
+          - id: "M23441_3"
+            status: "VALUE_CHANGED"
+            value: "wunderbAre Sache!"
+          - id: "M23446aac"
+            status: "CODING_COMPLETE"
+            value:
+              - 4
+              - 5
+              - 7
+              - 1
+            code: 3
+            score: 1
+        addOnItems:
+          - id: "K3445"
+            value: 1
+          - id: "K3335"
+            value: -99
+          - id: "K0445"
+            value: 0
 
     EvaluationOutput:
       type: object
@@ -288,6 +314,10 @@ components:
                 type: string
               value:
                 type: integer
+            required:
+              - id
+              - value
+            additionalProperties: false
           example:
             - id: "M23441a"
               value: -99
@@ -296,27 +326,33 @@ components:
             - id: "M23441c"
               value: 1
         scaleValues:
-          description: Für alle Skalen, zu denen Antworten vorlagen, werden Werte geliefert.
+          description: Für alle Skalen, zu denen Antworten oder zusätzliche Itemwerte vorlagen, werden Werte geliefert.
           type: array
           items:
             type: object
             properties:
-              analysisId:
+              surveyPartId:
                 type: string
               scaleId:
                 type: string
               value:
-                type: string
+                type: number
+            required:
+              - surveyPartId
+              - scaleId
+              - value
+            additionalProperties: false
           example:
-            - analysisId: "IQBSCP-A-923"
+            - surveyPartId: "IQBSCP-A-923"
               scaleId: "IQB.FCSum"
-              value: "45"
-            - analysisId: "IQBSCP-A-923"
+              value: 1
+            - surveyPartId: "IQBSCP-A-923"
               scaleId: "IQB.FCRatio"
-              value: "53.7554"
-            - analysisId: "IQBSCP-A-923"
+              value: 3
+            - surveyPartId: "IQBSCP-A-923"
               scaleId: "IQB.Komp.GER"
-              value: "B1"
+              value: 34
+      additionalProperties: false
 
     # Error Models
     Error:
