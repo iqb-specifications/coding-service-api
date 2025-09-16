@@ -233,7 +233,37 @@ components:
         numberOfBooklets:
           type: integer
           format: int64
-      required: [name, numberOfUnits, numberOfBooklets]
+      required:
+        - name
+        - numberOfUnits
+        - numberOfBooklets
+
+    unitResponses:
+      type: object
+      properties:
+        surveyPart:
+          type: string
+        unitId:
+          type: string
+        unitAlias:
+          type: string
+        responses:
+          type: array
+          items:
+            $ref: 'https://w3id.org/iqb/spec/response/1.5'
+          minItems: 1
+          example:
+            - id: "M23441_2"
+              status: "INVALID"
+              value: 4
+            - id: "M23441_3"
+              status: "CODING_COMPLETE"
+              value: "wunderbAre Sache!"
+              code: 0
+              score: 0
+      required:
+        - unitId
+        - responses
 
     EvaluationInput:
       description: |
@@ -245,7 +275,7 @@ components:
         responses:
           type: array
           items:
-            $ref: 'https://w3id.org/iqb/spec/response/1.5'
+            $ref: '#/components/schemas/unitResponses'
           minItems: 1
         addOnItems:
           type: array
@@ -263,21 +293,23 @@ components:
       additionalProperties: false
       example:
         responses:
-          - id: "M23441_2"
-            status: "VALUE_CHANGED"
-            value: 4
-          - id: "M23441_3"
-            status: "VALUE_CHANGED"
-            value: "wunderbAre Sache!"
-          - id: "M23446aac"
-            status: "CODING_COMPLETE"
-            value:
-              - 4
-              - 5
-              - 7
-              - 1
-            code: 3
-            score: 1
+          - unitId: "M28347"
+            responses:
+            - id: "2"
+              status: "VALUE_CHANGED"
+              value: 4
+            - id: "3"
+              status: "VALUE_CHANGED"
+              value: "wunderbAre Sache!"
+            - id: "aac"
+              status: "CODING_COMPLETE"
+              value:
+                - 4
+                - 5
+                - 7
+                - 1
+              code: 3
+              score: 1
         addOnItems:
           - id: "K3445"
             value: 1
@@ -293,17 +325,19 @@ components:
           description: Alle beim Aufruf übergebenen Antworten werden kodiert zurückgegeben.
           type: array
           items:
-            $ref: 'https://w3id.org/iqb/spec/response/1.5'
+            $ref: '#/components/schemas/unitResponses'
           minItems: 1
           example:
-            - id: "M23441_2"
-              status: "INVALID"
-              value: 4
-            - id: "M23441_3"
-              status: "CODING_COMPLETE"
-              value: "wunderbAre Sache!"
-              code: 0
-              score: 0
+            - unitId: "M28347"
+              responses:
+              - id: "2"
+                status: "INVALID"
+                value: 4
+              - id: "3"
+                status: "CODING_COMPLETE"
+                value: "wunderbAre Sache!"
+                code: 0
+                score: 0
         itemValues:
           description: Für alle Items, zu denen Antworten vorlagen, werden Werte geliefert.
           type: array
